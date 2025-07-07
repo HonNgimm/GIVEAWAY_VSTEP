@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>ISEE - GIVE AWAY VSTEP</title>
+  <link rel="shortcut icon" href="./icon.png" type="image/x-icon">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: url('bg-giveaway2.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .main-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 400px 200px 40px; 
+      transition: all 0.5s ease;
+    }
+
+    .left-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px; 
+    }
+
+    #quayButton {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 28px;
+      font-size: 20px;
+      font-weight: 600;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #ff5fad, #ff7eb9);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(255, 105, 180, 0.4);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #quayButton:hover {
+      background: linear-gradient(135deg, #ff3d9c, #ff66b3);
+      box-shadow: 0 8px 18px rgba(255, 105, 180, 0.5);
+      transform: scale(1.03);
+    }
+
+    .display-wrapper {
+      position: relative;
+      padding: 4px;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .display-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -4px; left: -4px; right: -4px; bottom: -4px;
+      background: linear-gradient(45deg, red, orange, yellow, green, cyan, blue, violet, red);
+      background-size: 400%;
+      animation: borderRainbow 12s linear infinite;
+      z-index: -1;
+      border-radius: 20px;
+      filter: blur(4px);
+    }
+
+    @keyframes borderRainbow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 400% 50%; }
+    }
+
+    #display {
+      background: rgba(255, 255, 255, 0.85);
+      padding: 20px 30px;
+      border-radius: 16px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #0b7a75;
+      text-align: center;
+      min-width: 300px;
+      min-height: 100px;
+      transition: all 0.2s ease;
+    }
+
+    .right-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.5s ease;
+    }
+
+    .centered {
+      margin: 0 auto;
+      align-items: center !important;
+    }
+
+    h2 {
+      font-size: 30px;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      padding: 12px 30px;
+      border-radius: 20px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+      border: 2px solid rgba(255,255,255,0.7);
+      display: inline-block;
+      margin-top: -20px;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+    }
+
+    #winnersList {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .winner-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .winner-box {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      min-width: 220px;
+    }
+
+    #bottomBar {
+      position: fixed;
+      bottom: 10px;
+      right: -70px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #bottomBar input[type="file"] {
+      font-size: 14px;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translate(0px, 0px); }
+      20% { transform: translate(-3px, 0px); }
+      40% { transform: translate(3px, 0px); }
+      60% { transform: translate(-3px, 0px); }
+      80% { transform: translate(3px, 0px); }
+    }
+
+    .shaking {
+      animation: shake 0.2s infinite;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-container" id="mainContainer">
+    <div class="left-area" id="leftArea">
+      <button id="quayButton" onclick="quaySo()">QUAY</button>
+      <div class="display-wrapper" id="displayWrapper">
+        <div id="display"></div>
+      </div>
+    </div>
+
+    <div class="right-area" id="rightArea">
+      <h2>🎁 DANH SÁCH ĐÃ TRÚNG 🎁</h2>
+      <div id="winnersList"></div>
+    </div>
+  </div>
+
+  <div id="bottomBar">
+    <button onclick="xuatKetQua()">📁 Xuất kết quả</button>
+    <input type="file" id="fileInput" accept=".xlsx">
+  </div>
+
+  <!-- AUDIO ELEMENTS -->
+  <audio id="bgMusic" src="audio1.mp3" loop autoplay></audio>
+  <audio id="spinSound" src="audio2.mp3"></audio>
+  <audio id="finishOneSound" src="audio3.mp3"></audio>
+  <audio id="finishAllSound" src="audio4.mp3"></audio>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const bg = document.getElementById("bgMusic");
+      bg.volume = 0.4;
+      bg.play().catch(() => {
+        document.body.addEventListener('click', () => {
+          bg.play();
+        }, { once: true });
+      });
+    });
+
+    let danhSach = [];
+    let daTrung = [];
+
+    function renderWinnersList() {
+      let html = `<div class="winner-column">`;
+      for (let i = 0; i < 4; i++) {
+        const sv = daTrung[i];
+        if (sv) {
+          html += `<div class="winner-box">🎖️ ${i + 1}. ${sv.mssv}<br>${sv.hoTen}</div>`;
+        } else {
+          html += `<div class="winner-box">🎖️ ${i + 1}. ...<br></div>`;
+        }
+      }
+      html += `</div><div class="winner-column">`;
+      for (let i = 4; i < 8; i++) {
+        const sv = daTrung[i];
+        if (sv) {
+          html += `<div class="winner-box">🎖️ ${i + 1}. ${sv.mssv}<br>${sv.hoTen}</div>`;
+        } else {
+          html += `<div class="winner-box">🎖️ ${i + 1}. ...<br></div>`;
+        }
+      }
+      html += `</div>`;
+      document.getElementById('winnersList').innerHTML = html;
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        danhSach = jsonData
+          .filter(row => row.length >= 2)
+          .map(row => ({ mssv: String(row[0]).trim(), hoTen: String(row[1]).trim() }));
+
+        daTrung = [];
+        document.getElementById('display').innerText = "";
+        document.getElementById('displayWrapper').style.display = 'block';
+        document.getElementById('quayButton').style.display = 'inline-flex';
+        renderWinnersList();
+        document.getElementById('rightArea').classList.remove("centered");
+        document.getElementById('mainContainer').style.justifyContent = 'space-between';
+        document.getElementById('leftArea').style.display = 'flex';
+
+        alert("Đã tải " + danhSach.length + " người.");
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    function smallFireworks() {
+      confetti({
+        particleCount: 25,
+        spread: 70,
+        origin: { y: 0.6 },
+        scalar: 0.75,
+        zIndex: 1000
+      });
+    }
+
+
+    function quaySo() {
+      const bgMusic = document.getElementById("bgMusic");
+             bgMusic.pause();
+              bgMusic.currentTime = 0;
+
+      const spinSound = document.getElementById("spinSound");
+      spinSound.play();
+
+      const conLai = danhSach.filter(sv => !daTrung.some(trung => trung.mssv === sv.mssv));
+      if (conLai.length === 0 || daTrung.length >= 8) {
+        alert("Đã hết người để quay hoặc đã đủ 8 người!");
+        return;
+      }
+
+      const display = document.getElementById('display');
+      const displayWrapper = document.getElementById('displayWrapper');
+      displayWrapper.classList.add('shaking');
+
+      let step = 0;
+      let maxStep = 60;
+      let duration = 3000;
+      let lastPicked = null;
+
+      let times = [];
+      for (let i = 0; i < maxStep; i++) {
+        let t = easeOutExpo(i / maxStep) * duration;
+        times.push(t);
+      }
+
+      function easeOutExpo(x) {
+        return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+      }
+
+      function showNext() {
+        if (step >= maxStep) {
+          displayWrapper.classList.remove('shaking');
+          daTrung.push(lastPicked);
+          display.innerHTML = `
+            <div style="color:#ff0066; font-size:20px; margin-bottom:8px;">🎉XIN CHÚC MỪNG🎉</div>
+            <div>${lastPicked.mssv}</div>
+            <div>${lastPicked.hoTen}</div>
+          `;
+
+          spinSound.pause();
+          spinSound.currentTime = 0;
+          document.getElementById("finishOneSound").play();
+          smallFireworks();
+          renderWinnersList();
+
+          if (daTrung.length >= 8) {
+            document.getElementById('quayButton').style.display = 'none';
+            document.getElementById('displayWrapper').style.display = 'none';
+            document.getElementById('leftArea').style.display = 'none';
+            document.getElementById('mainContainer').style.justifyContent = 'center';
+            document.getElementById('rightArea').classList.add('centered');
+            document.getElementById("finishAllSound").play();
+            runFireworks();
+          }
+          return;
+        }
+
+        lastPicked = conLai[Math.floor(Math.random() * conLai.length)];
+        display.innerHTML = `<div>${lastPicked.mssv}</div><div>${lastPicked.hoTen}</div>`;
+        step++;
+        const delay = step === 0 ? times[0] : times[step] - times[step - 1];
+        setTimeout(showNext, delay);
+      }
+
+      showNext();
+    }
+
+    function runFireworks() {
+  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+  setInterval(function () {
+    confetti(Object.assign({}, defaults, {
+      particleCount: 40,
+      origin: { x: Math.random(), y: Math.random() * 0.6 }
+    }));
+  }, 250);
+}
+
+    function xuatKetQua() {
+      if (daTrung.length === 0) {
+        alert("Chưa có ai trúng thưởng!");
+        return;
+      }
+      const ws = XLSX.utils.json_to_sheet(daTrung.map((sv, index) => ({
+        "STT": index + 1,
+        "MSSV": sv.mssv,
+        "Họ và Tên": sv.hoTen
+      })));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "TrungThuong");
+      XLSX.writeFile(wb, "ket_qua_trung_thuong.xlsx");
+    }
+
+    renderWinnersList();
+  </script>
+</body>
+</html>
