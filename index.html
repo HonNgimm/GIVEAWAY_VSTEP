@@ -5,7 +5,8 @@
   <title>ISEE - GIVE AWAY VSTEP</title>
   <link rel="shortcut icon" href="./icon.png" type="image/x-icon">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>  <style>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
@@ -90,6 +91,21 @@
       transition: all 0.2s ease;
     }
 
+    .scroll-up {
+      animation: scrollUp 0.4s ease-out;
+    }
+
+    @keyframes scrollUp {
+      0% {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .right-area {
       display: flex;
       flex-direction: column;
@@ -153,18 +169,6 @@
 
     #bottomBar input[type="file"] {
       font-size: 14px;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translate(0px, 0px); }
-      20% { transform: translate(-3px, 0px); }
-      40% { transform: translate(3px, 0px); }
-      60% { transform: translate(-3px, 0px); }
-      80% { transform: translate(3px, 0px); }
-    }
-
-    .shaking {
-      animation: shake 0.2s infinite;
     }
   </style>
 </head>
@@ -271,24 +275,22 @@
       });
     }
 
-
     function quaySo() {
       const bgMusic = document.getElementById("bgMusic");
-             bgMusic.pause();
-              bgMusic.currentTime = 0;
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
 
       const spinSound = document.getElementById("spinSound");
       spinSound.play();
 
       const conLai = danhSach.filter(sv => !daTrung.some(trung => trung.mssv === sv.mssv));
       if (conLai.length === 0 || daTrung.length >= 8) {
-        alert("Đã hết người để quay hoặc đã đủ 8 người!");
+        alert("Đã Quay Xong!");
         return;
       }
 
       const display = document.getElementById('display');
       const displayWrapper = document.getElementById('displayWrapper');
-      displayWrapper.classList.add('shaking');
 
       let step = 0;
       let maxStep = 60;
@@ -307,12 +309,11 @@
 
       function showNext() {
         if (step >= maxStep) {
-          displayWrapper.classList.remove('shaking');
           daTrung.push(lastPicked);
           display.innerHTML = `
-            <div style="color:#ff0066; font-size:20px; margin-bottom:8px;">🎉XIN CHÚC MỪNG🎉</div>
-            <div>${lastPicked.mssv}</div>
-            <div>${lastPicked.hoTen}</div>
+            <div class="scroll-up" style="color:#ff0066; font-size:20px; margin-bottom:8px;">🎉XIN CHÚC MỪNG🎉</div>
+            <div class="scroll-up">${lastPicked.mssv}</div>
+            <div class="scroll-up">${lastPicked.hoTen}</div>
           `;
 
           spinSound.pause();
@@ -334,7 +335,10 @@
         }
 
         lastPicked = conLai[Math.floor(Math.random() * conLai.length)];
-        display.innerHTML = `<div>${lastPicked.mssv}</div><div>${lastPicked.hoTen}</div>`;
+        display.innerHTML = `
+          <div class="scroll-up">${lastPicked.mssv}</div>
+          <div class="scroll-up">${lastPicked.hoTen}</div>
+        `;
         step++;
         const delay = step === 0 ? times[0] : times[step] - times[step - 1];
         setTimeout(showNext, delay);
@@ -344,15 +348,14 @@
     }
 
     function runFireworks() {
-  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
-
-  setInterval(function () {
-    confetti(Object.assign({}, defaults, {
-      particleCount: 40,
-      origin: { x: Math.random(), y: Math.random() * 0.6 }
-    }));
-  }, 250);
-}
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+      setInterval(function () {
+        confetti(Object.assign({}, defaults, {
+          particleCount: 40,
+          origin: { x: Math.random(), y: Math.random() * 0.6 }
+        }));
+      }, 250);
+    }
 
     function xuatKetQua() {
       if (daTrung.length === 0) {
